@@ -60,6 +60,49 @@
 .dc-guide-close{position:absolute;right:12px;top:8px;border:0;background:transparent;font-size:27px;cursor:pointer;color:var(--muted)}
 @media(max-width:640px){.dc-tabs-shell{align-items:stretch;flex-direction:column}.dc-main-tabs{width:100%}.dc-help-button{width:100%}.dc-guide-card{padding:23px 18px}}
 
+
+/* DigiCareer visual refresh */
+:root{--navy:#101f3d;--blue:#315eea;--blue2:#2448c7;--ink:#17233c;--muted:#65738b;--line:#e2e8f2;--bg:#f5f7fc;--soft:#eef3ff;--shadow:0 8px 28px rgba(27,45,84,.055)}
+body{background:radial-gradient(ellipse at 12% 0%,#edf2ff 0,transparent 34%),var(--bg);color:var(--ink);font-size:15px}
+.head,main,footer{width:min(100% - 40px,1160px)}
+header{background:linear-gradient(120deg,#101f3d 0%,#183b75 58%,#315eea 120%);padding:18px 20px 32px;position:relative;overflow:hidden}
+header:after{content:"";position:absolute;width:360px;height:360px;border:1px solid rgba(255,255,255,.12);border-radius:50%;right:-110px;top:-210px;box-shadow:0 0 0 38px rgba(255,255,255,.035),0 0 0 78px rgba(255,255,255,.025);pointer-events:none}
+.brand{font-size:1.25rem;letter-spacing:-.03em}.brand b{color:#9db8ff}.hero{padding:35px 0 8px;position:relative;z-index:1}.hero h1{max-width:720px;font-size:clamp(2rem,4vw,3.1rem);letter-spacing:-.045em}.hero p{font-size:1.02rem;max-width:650px;color:#dce7ff}
+main{padding:22px 0 52px}
+.dc-tabs-shell{top:0;margin:0 0 20px;padding:10px 12px;border:1px solid rgba(221,229,242,.9);border-radius:16px;background:rgba(255,255,255,.9);box-shadow:0 8px 26px rgba(27,45,84,.07)}
+.dc-main-tabs{gap:6px}
+.dc-main-tabs .btn{border:0;background:transparent;color:#52617a;border-radius:10px;padding:11px 18px;font-size:.94rem}
+.dc-main-tabs .btn.active{background:#eaf0ff;color:#2448c7;box-shadow:inset 0 0 0 1px #d9e3ff}
+.dc-help-button{border-color:#e2e8f2;color:#34415b;border-radius:10px}
+.card{border:1px solid #e5eaf3;border-radius:18px;padding:26px;box-shadow:0 7px 25px rgba(27,45,84,.045);margin-bottom:18px}
+.card h2{font-size:1.42rem;letter-spacing:-.025em}
+.dc-section-kicker{color:#3156c8;font-size:.72rem;letter-spacing:.11em;margin-bottom:7px}
+.dc-desk-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.dc-desk-link{padding:17px;border-radius:14px;background:linear-gradient(145deg,#fff,#f8faff);border-color:#e5eaf4;min-height:95px;transition:transform .18s,border-color .18s,box-shadow .18s}
+.dc-desk-link:hover{border-color:#b8c9fa;box-shadow:0 8px 18px rgba(49,94,234,.08);transform:translateY(-2px)}
+.dc-desk-link strong{font-size:.96rem}.dc-desk-link span{line-height:1.45;display:block;margin-top:4px}
+.jd-toolbar{grid-template-columns:minmax(220px,2fr) minmax(145px,1fr) minmax(150px,1fr) minmax(130px,.8fr);gap:12px}
+input,select,textarea{border-color:#d7dfeb;border-radius:11px;padding:12px 13px;background:#fff}
+input:focus,select:focus,textarea:focus{outline:3px solid rgba(49,94,234,.12);border-color:#7895f4}
+.btn{border-radius:10px;padding:10px 15px;border-color:#dce3ef;transition:background .15s,border-color .15s,transform .15s}
+.btn:hover{border-color:#aabcf4;transform:translateY(-1px)}
+.btn.primary{background:linear-gradient(135deg,#315eea,#2448c7);box-shadow:0 5px 12px rgba(49,94,234,.18)}
+.actions{gap:9px}
+.jd-tabs{padding:5px;background:#f3f6fb;border-radius:12px;width:max-content;max-width:100%}
+.jd-tabs button{border:0}.jd-tabs button.active{background:#fff;color:#2448c7;box-shadow:0 2px 8px rgba(27,45,84,.1)}
+.jd-job{border-radius:14px;border-color:#e5eaf3;padding:18px;box-shadow:0 3px 12px rgba(27,45,84,.025)}
+.jd-job h3{font-size:1.05rem;letter-spacing:-.01em}
+.jd-empty{background:#fafbfe;border-color:#dce4f1;border-radius:14px;padding:28px}
+.cn-mark{border-radius:13px;background:linear-gradient(135deg,#e9efff,#dce6ff);color:#2448c7}
+.cn-path{border-radius:14px;border-color:#e5eaf3;padding:19px;box-shadow:0 3px 12px rgba(27,45,84,.025)}
+.cn-tag,.pill{background:#eef2ff;color:#3452a4}
+.cn-note{border-radius:12px}
+.dc-roadmap-card{border-color:#e5eaf3;border-radius:14px;padding:17px}
+.dc-guide-card,.dc-welcome-card{border-radius:22px}
+footer{padding-bottom:28px}
+@media(max-width:850px){.dc-desk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jd-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.head,main,footer{width:min(100% - 24px,1160px)}header{padding:16px 12px 25px}.hero{padding:27px 0 5px}.dc-tabs-shell{padding:8px}.dc-main-tabs .btn{padding:10px 12px;font-size:.86rem}.card{padding:18px}.dc-desk-grid{grid-template-columns:1fr}.jd-toolbar{grid-template-columns:1fr}.jd-toolbar .wide{grid-column:auto}.dc-help-button{width:100%}}
+
 </style>
 <link rel="canonical" href="https://digicareer.onrender.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -73,7 +116,7 @@
 <meta name="twitter:description" content="Practise job interviews with an AI interviewer. Tailor questions to a job description, answer one question at a time, and get feedback on your interview answers.">
 </head>
 <body>
-<header><div class="head"><div class="brand">Digi<b>Career</b> <small>by DigiCafe</small></div><div class="nav"><span id="userLabel" class="small"></span><button id="logoutBtn" class="btn hidden" type="button">Sign out</button></div></div><div class="head hero"><div><h1>Practise with your AI interviewer.</h1><p>Answer one question at a time, receive realistic follow-ups, and get feedback on your technical knowledge, clarity, and structure.</p></div></div></header>
+<header><div class="head"><div class="brand">Digi<b>Career</b> <small>by DigiCafe</small></div><div class="nav"><span id="userLabel" class="small"></span><button id="logoutBtn" class="btn hidden" type="button">Sign out</button></div></div><div class="head hero"><div><h1>Your next career move starts here.</h1><p>Discover opportunities, understand your career direction and practise interviews — all in one place.</p></div></div></header>
 
 <div id="dc-diwali-popup" class="dc-welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="dc-diwali-title">
   <div class="dc-welcome-card">
