@@ -25,6 +25,12 @@
 .dc-roadmap-card .pill{display:inline-block;margin-bottom:8px}
 @media(max-width:640px){.dc-welcome-card{padding:24px 18px}.dc-desk-grid,.dc-roadmap-grid{grid-template-columns:1fr}}
 
+
+/* Career Navigator */
+.cn-intro{display:flex;gap:12px;align-items:flex-start}.cn-mark{width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:#eaf1ff;color:#1949b8;display:grid;place-items:center;font-weight:900;font-size:1.2rem}
+.cn-results{margin-top:18px}.cn-path{border:1px solid var(--line);border-radius:14px;padding:17px;margin:12px 0;background:#fff}.cn-path h3{margin:0 0 5px}.cn-meta{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.cn-tag{background:#eef4ff;color:#214a83;border-radius:999px;padding:4px 9px;font-size:.78rem;font-weight:750}.cn-path ul{margin:7px 0 0;padding-left:20px}.cn-path li{margin:4px 0}.cn-note{background:#fff8e8;border:1px solid #f3dfb2;border-radius:10px;padding:12px;color:#70521b;font-size:.88rem}
+@media(max-width:640px){.cn-path{padding:14px}}
+
 </style>
 <link rel="canonical" href="https://digicareer.onrender.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -99,6 +105,29 @@
 </section>
 
 <section id="dashboardView" class="hidden">
+
+  <section class="card" id="careerNavigator" aria-labelledby="careerNavigatorTitle">
+    <div class="cn-intro"><div class="cn-mark" aria-hidden="true">CN</div><div><div class="dc-section-kicker">Career guidance · India &amp; global</div><h2 id="careerNavigatorTitle">Career Navigator</h2><p class="muted small">Not sure what to do after graduation or postgraduation? Build a practical shortlist of career paths based on your education, interests, skills and goals.</p></div></div>
+    <form id="careerNavigatorForm" style="margin-top:18px">
+      <div class="grid">
+        <div class="field"><label for="cnEducation">Highest qualification</label><select id="cnEducation" required><option value="">Select qualification</option><option>10th / SSLC</option><option>12th / PUC</option><option>ITI</option><option>Diploma</option><option>Undergraduate degree</option><option>Postgraduate degree</option><option>Professional qualification</option><option>Doctorate / PhD</option></select></div>
+        <div class="field"><label for="cnSubject">Degree / stream / specialisation</label><input id="cnSubject" required maxlength="140" placeholder="e.g. B.Com, B.Sc Computer Science, MBA Finance"></div>
+        <div class="field"><label for="cnYear">Graduation year (optional)</label><input id="cnYear" inputmode="numeric" maxlength="4" placeholder="e.g. 2025"></div>
+        <div class="field"><label for="cnExperience">Work experience</label><select id="cnExperience"><option>Fresher / no full-time experience</option><option>Less than 1 year</option><option>1–2 years</option><option>3–5 years</option><option>6–10 years</option><option>More than 10 years</option></select></div>
+        <div class="field full"><label for="cnInterests">What kind of work interests you?</label><textarea id="cnInterests" required maxlength="1500" style="min-height:90px" placeholder="e.g. working with numbers, helping people, technology, research, business, public service, creative work"></textarea></div>
+        <div class="field full"><label for="cnSkills">Current skills, subjects or strengths</label><textarea id="cnSkills" maxlength="1500" style="min-height:85px" placeholder="e.g. Excel, communication, accounting basics, Python, writing, project work"></textarea></div>
+        <div class="field"><label for="cnCountry">Preferred work location</label><select id="cnCountry"><option>India</option><option>India or abroad</option><option>United States</option><option>United Kingdom</option><option>Canada</option><option>Australia</option><option>United Arab Emirates</option><option>Germany</option><option>Any country with a suitable legal work route</option></select></div>
+        <div class="field"><label for="cnSector">Preferred sector</label><select id="cnSector"><option>Open to all sectors</option><option>Private sector</option><option>Government / public sector</option><option>Both government and private</option><option>Self-employment / entrepreneurship</option><option>Non-profit / education / research</option></select></div>
+        <div class="field"><label for="cnMode">Work preference</label><select id="cnMode"><option>Any work mode</option><option>On-site</option><option>Hybrid</option><option>Remote</option></select></div>
+        <div class="field"><label for="cnStudy">Willingness to study / retrain</label><select id="cnStudy"><option>Short courses (up to 3 months)</option><option>3–6 months</option><option>6–12 months</option><option>1–2 years</option><option>Open to longer qualifications</option><option>Prefer to start working immediately</option></select></div>
+      </div>
+      <div class="actions"><button class="btn primary" id="cnSubmit" type="submit">Find suitable career paths</button></div>
+    </form>
+    <div id="cnMessage" class="alert hidden" role="status" style="margin-top:14px"></div>
+    <div id="cnResults" class="cn-results" aria-live="polite"></div>
+    <p class="small muted">Guidance is AI-generated and is not a guarantee of admission, employment, salary or immigration eligibility. Verify exam rules, professional licensing, visa requirements, course recognition and current vacancies with official sources before making decisions. Your answers are used to generate this assessment and are not saved as a career profile.</p>
+  </section>
+
   <div class="card"><h2>Start a practice interview</h2><p class="muted">Choose a role, interview type and length. The AI interviewer will ask one question at a time and adapt follow-ups to your answers.</p>
   <form id="startForm"><div class="grid">
     <div class="field"><label for="role">Target role</label><select id="role" required><option>Accounts Executive</option><option>Assistant Manager – Accounts</option><option>Senior Accounts Executive</option><option>GST Executive</option><option>Bank Reconciliation Analyst</option><option>Accounts Payable (AP)</option><option>Accounts Receivable (AR)</option><option>R2R / General Ledger Analyst</option><option>Finance Executive</option><option>Customer Support</option><option>Sales Executive</option><option>Software Developer</option><option>HR Executive</option><option>General HR Interview</option><option>Custom role</option></select></div>
@@ -189,6 +218,60 @@ $("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;stat
         if(e.target.id===id) window.closeDigiCareerWelcome(id==="dc-diwali-popup"?"diwali":"morning");
       });
     });
+  });
+})();
+</script>
+
+
+<script>
+(() => {
+  "use strict";
+  const form=document.getElementById("careerNavigatorForm");
+  if(!form) return;
+  const $=id=>document.getElementById(id);
+  const msg=(text,kind="")=>{const el=$("cnMessage");el.textContent=text;el.className="alert"+(kind?" "+kind:"");el.classList.toggle("hidden",!text);};
+  const addText=(parent,tag,text,className="")=>{const el=document.createElement(tag);if(className)el.className=className;el.textContent=text??"";parent.appendChild(el);return el;};
+  function render(data){
+    const root=$("cnResults");root.replaceChildren();
+    addText(root,"h2",data.summary||"Your career path assessment");
+    if(data.profile_note)addText(root,"p",data.profile_note,"muted small");
+    (data.career_paths||[]).forEach((p,i)=>{
+      const card=addText(root,"article","","cn-path");
+      addText(card,"h3",(i+1)+". "+(p.title||"Career option"));
+      const meta=addText(card,"div","","cn-meta");
+      addText(meta,"span",p.sector||"Career path","cn-tag");
+      if(p.entry_level)addText(meta,"span",p.entry_level,"cn-tag");
+      if(p.location_fit)addText(meta,"span",p.location_fit,"cn-tag");
+      if(p.why_fit)addText(card,"p",p.why_fit);
+      if(p.eligibility)addText(card,"p","Eligibility to check: "+p.eligibility);
+      if(p.entry_route)addText(card,"p","How to enter: "+p.entry_route);
+      if(p.skills_to_build?.length){addText(card,"strong","Skills to build");const ul=addText(card,"ul","");p.skills_to_build.forEach(x=>addText(ul,"li",x));}
+      if(p.learning_plan?.length){addText(card,"strong","Suggested learning plan");const ul=addText(card,"ul","");p.learning_plan.forEach(x=>addText(ul,"li",x));}
+      if(p.watch_out_for)addText(card,"p","Consider: "+p.watch_out_for,"small muted");
+      if(p.next_action)addText(card,"p","Next action: "+p.next_action);
+    });
+    if(data.comparison_note)addText(root,"p",data.comparison_note,"cn-note");
+    if(data.general_next_steps?.length){addText(root,"h3","Your next steps");const ul=addText(root,"ul","");data.general_next_steps.forEach(x=>addText(ul,"li",x));}
+    if(data.caveat)addText(root,"p",data.caveat,"cn-note");
+    root.scrollIntoView({behavior:"smooth",block:"start"});
+  }
+  form.addEventListener("submit",async e=>{
+    e.preventDefault();
+    const btn=$("cnSubmit");btn.disabled=true;btn.textContent="Preparing your career assessment…";$("cnResults").replaceChildren();msg("Reviewing your profile and comparing possible career directions…");
+    const payload={
+      education:$("cnEducation").value,qualification:$("cnSubject").value.trim(),
+      graduation_year:$("cnYear").value.trim(),experience:$("cnExperience").value,
+      interests:$("cnInterests").value.trim(),skills:$("cnSkills").value.trim(),
+      country_preference:$("cnCountry").value,sector_preference:$("cnSector").value,
+      work_mode:$("cnMode").value,study_commitment:$("cnStudy").value
+    };
+    try{
+      const response=await fetch("/api/career-guidance",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+(localStorage.getItem("digicareer_token")||"")},body:JSON.stringify(payload)});
+      const data=await response.json().catch(()=>({detail:"Unexpected server response"}));
+      if(!response.ok)throw new Error(data.detail||"Could not create the assessment. Please try again.");
+      render(data);msg("Your career assessment is ready.","ok");
+    }catch(err){msg(err.message||"Something went wrong. Please try again.","error");}
+    finally{btn.disabled=false;btn.textContent="Find suitable career paths";}
   });
 })();
 </script>
