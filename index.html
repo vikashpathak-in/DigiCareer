@@ -93,4 +93,39 @@ $("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;stat
 (async()=>{if(!state.token){showView("authView");return;}try{const data=await api("/api/me");state.user=data.user;await enterDashboard();}catch(_){state.token="";localStorage.removeItem("digicareer_token");showView("authView");}})();
 })();
 </script>
+
+<script id="digicareer-welcome-controller">
+(() => {
+  "use strict";
+  const now = new Date();
+  const dayKey = [now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
+  const diwaliKey = "digicareer_diwali_2026_seen";
+  const morningKey = "digicareer_morning_seen_"+dayKey;
+  const open = id => document.getElementById(id)?.classList.add("open");
+  window.closeDigiCareerWelcome = kind => {
+    const id = kind==="diwali" ? "dc-diwali-popup" : "dc-morning-popup";
+    document.getElementById(id)?.classList.remove("open");
+    try { localStorage.setItem(kind==="diwali" ? diwaliKey : morningKey,"1"); } catch(e) {}
+    if(kind==="diwali") setTimeout(showMorning,300);
+  };
+  function showMorning(){
+    try { if(localStorage.getItem(morningKey)==="1") return; } catch(e) {}
+    open("dc-morning-popup");
+  }
+  document.addEventListener("DOMContentLoaded",()=>{
+    const dateNode=document.getElementById("careerDeskDate");
+    if(dateNode) dateNode.textContent=now.toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+    const isDiwali=dayKey==="2026-11-08";
+    let seen=false; try { seen=localStorage.getItem(diwaliKey)==="1"; } catch(e) {}
+    if(isDiwali && !seen) setTimeout(()=>open("dc-diwali-popup"),900);
+    else setTimeout(showMorning,1300);
+    ["dc-diwali-popup","dc-morning-popup"].forEach(id=>{
+      document.getElementById(id)?.addEventListener("click",e=>{
+        if(e.target.id===id) window.closeDigiCareerWelcome(id==="dc-diwali-popup"?"diwali":"morning");
+      });
+    });
+  });
+})();
+</script>
+
 </body></html>
