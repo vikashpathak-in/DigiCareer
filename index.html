@@ -42,6 +42,24 @@
 .jd-job a{color:var(--blue2);font-weight:700}
 .jd-empty{padding:20px;border:1px dashed #bdcad9;border-radius:12px;color:var(--muted);text-align:center}
 @media(max-width:700px){.jd-toolbar{grid-template-columns:1fr 1fr}.jd-toolbar .wide{grid-column:1/-1}}
+
+/* Main navigation tabs: keep tools in separate views instead of one long page */
+.dc-tabs-shell{position:sticky;top:0;z-index:1000;background:rgba(243,247,251,.96);backdrop-filter:blur(10px);padding:10px 0 12px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line)}
+.dc-main-tabs{display:flex;gap:8px;overflow-x:auto;flex:1}
+.dc-main-tabs .btn{white-space:nowrap}
+.dc-main-tabs .btn.active{background:var(--blue);border-color:var(--blue);color:#fff}
+.dc-tab-panel{display:none}
+.dc-tab-panel.active{display:block}
+.dc-help-button{white-space:nowrap;background:#fff}
+.dc-guide-overlay{display:none;position:fixed;inset:0;z-index:16000;background:rgba(8,18,34,.78);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px}
+.dc-guide-overlay.open{display:flex}
+.dc-guide-card{position:relative;width:min(100%,560px);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:26px;box-shadow:0 24px 80px rgba(8,28,55,.35)}
+.dc-guide-card h2{margin:0 0 8px}.dc-guide-step{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.dc-guide-number{flex:0 0 30px;height:30px;border-radius:50%;background:#eaf1ff;color:#1949b8;display:grid;place-items:center;font-weight:850}
+.dc-guide-step strong{display:block}.dc-guide-step p{margin:3px 0 0;color:var(--muted);font-size:.92rem}
+.dc-guide-close{position:absolute;right:12px;top:8px;border:0;background:transparent;font-size:27px;cursor:pointer;color:var(--muted)}
+@media(max-width:640px){.dc-tabs-shell{align-items:stretch;flex-direction:column}.dc-main-tabs{width:100%}.dc-help-button{width:100%}.dc-guide-card{padding:23px 18px}}
+
 </style>
 <link rel="canonical" href="https://digicareer.onrender.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -77,8 +95,24 @@
 </div>
 
 <main>
+
+<div id="dc-guide-popup" class="dc-guide-overlay" role="dialog" aria-modal="true" aria-labelledby="dc-guide-title">
+ <div class="dc-guide-card">
+  <button class="dc-guide-close" type="button" aria-label="Close" id="dcGuideClose">&times;</button>
+  <div class="dc-section-kicker">A quick tour</div><h2 id="dc-guide-title">How to use DigiCareer</h2>
+  <p class="muted">Choose a tab at the top. You do not need to scroll through every tool.</p>
+  <div class="dc-guide-step"><span class="dc-guide-number">1</span><div><strong>Find Jobs</strong><p>Search by job title, skill or location. Filter opportunities, open the original notice and save jobs to your browser.</p></div></div>
+  <div class="dc-guide-step"><span class="dc-guide-number">2</span><div><strong>Career Navigator</strong><p>Enter your education, experience, interests and skills. DigiCareer will suggest career paths and next steps.</p></div></div>
+  <div class="dc-guide-step"><span class="dc-guide-number">3</span><div><strong>AI Interview</strong><p>Select a target role, choose the interview type and question count, then practise answering one question at a time.</p></div></div>
+  <div class="dc-guide-step"><span class="dc-guide-number">4</span><div><strong>Use the feedback</strong><p>Review your strengths and improvement areas after the mock interview. Your saved interview history is account-based.</p></div></div>
+  <div class="actions"><button class="btn primary" type="button" id="dcGuideStart">Got it — start exploring</button></div>
+ </div>
+</div>
+
 <div id="globalMessage" class="alert hidden" role="status"></div>
 <!-- Public DigiCareer: sign-in is not required for career search. -->
+<div class="dc-tabs-shell"><nav class="dc-main-tabs" role="tablist" aria-label="DigiCareer sections"><button class="btn active" type="button" role="tab" aria-selected="true" data-tab="jobs">Find Jobs</button><button class="btn" type="button" role="tab" aria-selected="false" data-tab="career">Career Navigator</button><button class="btn" type="button" role="tab" aria-selected="false" data-tab="interview">AI Interview</button></nav><button class="btn dc-help-button" id="dcHelpOpen" type="button">How to use DigiCareer</button></div>
+<div class="dc-tab-panel active" data-tab-panel="jobs">
 
 <section class="card" aria-labelledby="careerDeskTitle">
   <div class="dc-section-kicker">DigiCareer Daily Desk</div>
@@ -123,9 +157,10 @@
   <div class="actions"><button class="btn primary" type="button" id="dcExplorePractice">Explore AI Interview Practice</button></div>
 </section>
 
+</div>
 <section id="dashboardView">
 
-  <section class="card" id="careerNavigator" aria-labelledby="careerNavigatorTitle">
+  <div class="dc-tab-panel" data-tab-panel="career"><section class="card" id="careerNavigator" aria-labelledby="careerNavigatorTitle">
     <div class="cn-intro"><div class="cn-mark" aria-hidden="true">CN</div><div><div class="dc-section-kicker">Career guidance · India &amp; global</div><h2 id="careerNavigatorTitle">Career Navigator</h2><p class="muted small">Not sure what to do after graduation or postgraduation? Build a practical shortlist of career paths based on your education, interests, skills and goals.</p></div></div>
     <form id="careerNavigatorForm" style="margin-top:18px">
       <div class="grid">
@@ -147,7 +182,7 @@
     <p class="small muted">Guidance is AI-generated and is not a guarantee of admission, employment, salary or immigration eligibility. Verify exam rules, professional licensing, visa requirements, course recognition and current vacancies with official sources before making decisions. Your answers are used to generate this assessment and are not saved as a career profile.</p>
   </section>
 
-  <div class="card"><h2>Start a practice interview</h2><p class="muted">Choose a role, interview type and length. The AI interviewer will ask one question at a time and adapt follow-ups to your answers.</p>
+  </div><div class="dc-tab-panel" data-tab-panel="interview"><div class="card"><h2>Start a practice interview</h2><p class="muted">Choose a role, interview type and length. The AI interviewer will ask one question at a time and adapt follow-ups to your answers.</p>
   <form id="startForm"><div class="grid">
     <div class="field"><label for="role">Target role</label><select id="role" required><option>Accounts Executive</option><option>Assistant Manager – Accounts</option><option>Senior Accounts Executive</option><option>GST Executive</option><option>Bank Reconciliation Analyst</option><option>Accounts Payable (AP)</option><option>Accounts Receivable (AR)</option><option>R2R / General Ledger Analyst</option><option>Finance Executive</option><option>Customer Support</option><option>Sales Executive</option><option>Software Developer</option><option>HR Executive</option><option>General HR Interview</option><option>Custom role</option></select></div>
     <div id="customRoleWrap" class="field hidden"><label for="customRole">Custom job title</label><input id="customRole" maxlength="100" placeholder="Enter job title"></div>
@@ -159,6 +194,7 @@
   </div><div class="actions"><button class="btn primary" id="startBtn" type="submit">Generate questions & start interview</button></div></form>
   <p class="small muted">AI feedback is practice guidance, not a hiring decision. Do not enter confidential employer, customer, or financial information.</p></div>
   <div class="card"><h2>Previous practice sessions</h2><p class="muted small">Your saved interview results appear here.</p><div id="historyList"><p class="muted">Loading history…</p></div></div>
+</div>
 </section>
 <section id="interviewView" class="card hidden">
   <div class="interview-top"><div><span id="rolePill" class="pill"></span><span id="typePill" class="pill"></span></div><div id="questionCount" class="small muted">Question 1</div></div>
@@ -199,7 +235,7 @@ $("answerForm").addEventListener("submit",async e=>{e.preventDefault();const ans
 $("endEarlyBtn").addEventListener("click",async()=>{if(!confirm("Finish this interview now and receive feedback on completed answers?"))return;const btn=$("endEarlyBtn");setBusy(btn,true,"Finishing…");try{const data=await api(`/api/interviews/${state.interview.id}/finish`,{method:"POST",body:"{}"});state.interview=data.interview;renderResult(data.report);showView("resultView");}catch(err){message(err.message,"error");}finally{setBusy(btn,false,"Finish interview early");}});
 function renderResult(report){const body=$("resultBody");body.replaceChildren();$("resultSubtitle").textContent=`${report.role} · ${report.answers_reviewed} answer(s) reviewed`;const score=document.createElement("div");score.className="score";score.textContent=report.overall_score+"/100";body.append(score);const desc=document.createElement("p");desc.className="muted";desc.textContent="Practice feedback only—not a hiring decision or guarantee of employment.";body.append(desc);const grid=document.createElement("div");grid.className="feedback-grid";for(const [label,val] of [["Technical knowledge",report.technical_knowledge],["Answer clarity",report.answer_clarity],["Structure",report.structure],["Role relevance",report.role_relevance]]){const c=document.createElement("div");c.className="feedback-card";const b=document.createElement("b");b.textContent=label;const p=document.createElement("div");p.textContent=val??"Not enough evidence";c.append(b,p);grid.append(c);}body.append(grid);for(const [title,items] of [["Strengths",report.strengths],["Areas to improve",report.improvements],["Recommended practice",report.next_steps]]){const h=document.createElement("h3");h.style.marginTop="20px";h.textContent=title;body.append(h);const ul=document.createElement("ul");(items||[]).forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.append(li);});if(!ul.children.length){const li=document.createElement("li");li.textContent="Keep practising and review the feedback above.";ul.append(li);}body.append(ul);}const transcript=document.createElement("details");transcript.style.marginTop="20px";const sum=document.createElement("summary");sum.textContent="View question-by-question feedback";transcript.append(sum);(report.answer_feedback||[]).forEach((a,n)=>transcript.append(safeBubble("Question "+(n+1),a.question,"ai"),safeBubble("Feedback",a.feedback,"user")));body.append(transcript);const dl=document.createElement("button");dl.className="btn";dl.textContent="Download feedback (.txt)";dl.type="button";dl.addEventListener("click",()=>{const text=`DigiCareer AI Interview Feedback\nRole: ${report.role}\nOverall practice score: ${report.overall_score}/100\n\nStrengths:\n${(report.strengths||[]).map(x=>"- "+x).join("\n")}\n\nAreas to improve:\n${(report.improvements||[]).map(x=>"- "+x).join("\n")}\n\nNext steps:\n${(report.next_steps||[]).map(x=>"- "+x).join("\n")}\n\nQuestion feedback:\n${(report.answer_feedback||[]).map((a,i)=>`${i+1}. ${a.question}\n${a.feedback}`).join("\n\n")}\n\nAI practice feedback only; not a hiring decision.`;const url=URL.createObjectURL(new Blob([text],{type:"text/plain;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="DigiCareer-Interview-Feedback.txt";a.click();URL.revokeObjectURL(url);});body.append(dl);}
 $("newInterviewBtn").addEventListener("click",async()=>{showView("dashboardView");await loadHistory();});$("dashboardBtn").addEventListener("click",async()=>{showView("dashboardView");await loadHistory();});
-$("dcExplorePractice").addEventListener("click",()=>{if(state.user) showView("dashboardView");else showView("authView");document.getElementById("authView").scrollIntoView({behavior:"smooth"});});
+$("dcExplorePractice").addEventListener("click",()=>{document.querySelector('[data-tab="interview"]')?.click();});
 $("logoutBtn").classList.add("hidden");
 (async()=>{if(state.token){try{const data=await api("/api/me");state.user=data.user;}catch(_){state.token="";localStorage.removeItem("digicareer_token");}}await enterDashboard();})();
 })();
@@ -352,4 +388,30 @@ $("logoutBtn").classList.add("hidden");
   $("jdBookmarkPage").addEventListener("click",()=>alert("To bookmark DigiCareer in your browser, press Ctrl + D (Windows) or Cmd + D (Mac), then save it to your Bookmarks bar."));
 })();
 </script>
+
+<script id="digicareer-tabs-and-guide">
+(() => {
+ "use strict";
+ const tabs=[...document.querySelectorAll("[data-tab]")],panels=[...document.querySelectorAll("[data-tab-panel]")];
+ function activate(name){
+  tabs.forEach(b=>{const on=b.dataset.tab===name;b.classList.toggle("active",on);b.setAttribute("aria-selected",String(on));});
+  panels.forEach(p=>p.classList.toggle("active",p.dataset.tabPanel===name));
+  try{localStorage.setItem("digicareer_active_tab",name)}catch(e){}
+  window.scrollTo({top:0,behavior:"smooth"});
+ }
+ tabs.forEach(b=>b.addEventListener("click",()=>activate(b.dataset.tab)));
+ const guide=document.getElementById("dc-guide-popup");
+ const close=()=>{guide.classList.remove("open");try{localStorage.setItem("digicareer_guide_seen","1")}catch(e){}};
+ document.getElementById("dcHelpOpen").addEventListener("click",()=>guide.classList.add("open"));
+ document.getElementById("dcGuideClose").addEventListener("click",close);
+ document.getElementById("dcGuideStart").addEventListener("click",close);
+ guide.addEventListener("click",e=>{if(e.target===guide)close()});
+ let saved="jobs";try{saved=localStorage.getItem("digicareer_active_tab")||"jobs"}catch(e){}
+ activate(["jobs","career","interview"].includes(saved)?saved:"jobs");
+ let seen=false;try{seen=localStorage.getItem("digicareer_guide_seen")==="1"}catch(e){}
+ if(!seen)setTimeout(()=>guide.classList.add("open"),650);
+ document.getElementById("dcExplorePractice")?.addEventListener("click",()=>activate("interview"));
+})();
+</script>
+
 </body></html>
