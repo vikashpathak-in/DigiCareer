@@ -103,6 +103,67 @@ footer{padding-bottom:28px}
 @media(max-width:850px){.dc-desk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.jd-toolbar{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:640px){.head,main,footer{width:min(100% - 24px,1160px)}header{padding:16px 12px 25px}.hero{padding:27px 0 5px}.dc-tabs-shell{padding:8px}.dc-main-tabs .btn{padding:10px 12px;font-size:.86rem}.card{padding:18px}.dc-desk-grid{grid-template-columns:1fr}.jd-toolbar{grid-template-columns:1fr}.jd-toolbar .wide{grid-column:auto}.dc-help-button{width:100%}}
 
+
+/* DigiCareer opportunity portal layout inspired by classic recruitment portals */
+body{background:#f0f2f5;color:#182337;font-family:Arial,Helvetica,sans-serif}
+header{background:#152c4d;padding:0 18px 22px;border-bottom:5px solid #e5a52b}
+.head,main,footer{width:min(100% - 28px,1200px)}
+.head:first-child{min-height:62px}
+.brand{font-size:1.35rem;letter-spacing:-.035em}
+.hero{padding:20px 0 8px;text-align:center;justify-content:center}
+.hero h1{font-size:clamp(1.65rem,3vw,2.35rem);margin-bottom:7px}
+.hero p{margin:auto;color:#e0e9f5}
+main{padding:16px 0 35px}
+.dc-tabs-shell{position:relative;top:auto;border-radius:3px;background:#173b68;border:0;padding:7px 9px;margin:0 0 15px;box-shadow:none}
+.dc-main-tabs{gap:3px}
+.dc-main-tabs .btn{border:0;border-radius:2px;background:transparent;color:#fff;padding:10px 17px;font-weight:700}
+.dc-main-tabs .btn:hover{background:#285487;transform:none}
+.dc-main-tabs .btn.active{background:#e5a52b;color:#182337;box-shadow:none}
+.dc-help-button{border-radius:2px;background:#fff;color:#173b68;border:0;font-weight:700}
+.dc-tab-panel[data-tab-panel="jobs"].active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:start}
+.dc-tab-panel[data-tab-panel="jobs"]>.card{margin:0;border:1px solid #cbd3df;border-radius:2px;padding:0;box-shadow:none;background:#fff;min-width:0}
+.dc-tab-panel[data-tab-panel="jobs"]>.card:first-child{grid-column:1/-1}
+.dc-tab-panel[data-tab-panel="jobs"]>.card:nth-child(2){grid-column:1/-1}
+.dc-tab-panel[data-tab-panel="jobs"]>.card:nth-child(3){grid-column:1/-1}
+.dc-tab-panel[data-tab-panel="jobs"]>.card>h2,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.dc-section-kicker,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>p,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.jd-toolbar,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.actions,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.jd-tabs,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>#jdStatus,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>#jdResults,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.cn-note,
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.dc-roadmap-grid{margin-left:15px;margin-right:15px}
+.dc-tab-panel[data-tab-panel="jobs"]>.card>.dc-section-kicker{padding-top:13px;margin-bottom:3px}
+.dc-tab-panel[data-tab-panel="jobs"]>.card>h2{background:#e9eef5;color:#18385f;padding:9px 15px;margin:0;font-size:1.08rem;border-top:1px solid #d4dce7;border-bottom:1px solid #d4dce7}
+.dc-tab-panel[data-tab-panel="jobs"]>.card>p{margin-top:10px;margin-bottom:8px}
+.dc-desk-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin:0!important;padding:0 15px 15px}
+.dc-desk-link{border:0;border-bottom:1px solid #e3e7ed;border-right:1px solid #e3e7ed;border-radius:0;background:#fff;padding:11px 9px;min-height:70px;transform:none!important;box-shadow:none!important}
+.dc-desk-link strong{font-size:.9rem;color:#174c88;text-decoration:underline}
+.dc-desk-link span{display:block;font-size:.8rem;line-height:1.35;margin-top:2px}
+.dc-desk-link:hover{background:#f5f8fc}
+.jd-toolbar{grid-template-columns:2fr 1fr 1fr 1fr}
+.jd-job{border-radius:2px;border:0;border-bottom:1px solid #e4e8ee;box-shadow:none;padding:12px 3px;margin:0}
+.jd-job h3{font-size:.94rem;color:#174c88}
+.jd-empty{border-radius:2px}
+.card{border-radius:3px;box-shadow:none}
+.dc-tab-panel[data-tab-panel="career"].active>.card,
+.dc-tab-panel[data-tab-panel="interview"].active>.card{border-radius:3px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.dc-guide-card{border-radius:8px}
+.dc-welcome-card{border-radius:8px}
+footer{background:#e6ebf2;padding:14px;margin-bottom:20px;text-align:center;color:#4b5b70}
+@media(max-width:760px){
+ .dc-tab-panel[data-tab-panel="jobs"].active{grid-template-columns:1fr}
+ .dc-tab-panel[data-tab-panel="jobs"]>.card:first-child,
+ .dc-tab-panel[data-tab-panel="jobs"]>.card:nth-child(2),
+ .dc-tab-panel[data-tab-panel="jobs"]>.card:nth-child(3){grid-column:1}
+ .dc-desk-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .jd-toolbar{grid-template-columns:1fr 1fr}
+ .dc-tabs-shell{flex-direction:column;align-items:stretch}
+ .dc-main-tabs{overflow-x:auto}
+}
+
 </style>
 <link rel="canonical" href="https://digicareer.onrender.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -159,7 +220,7 @@ footer{padding-bottom:28px}
 
 <section class="card" aria-labelledby="careerDeskTitle">
   <div class="dc-section-kicker">DigiCareer Daily Desk</div>
-  <h2 id="careerDeskTitle">Career News &amp; Opportunity Links</h2>
+  <h2 id="careerDeskTitle">Career Updates &amp; Important Links</h2>
   <p class="muted small">Quick access to recruitment notifications, job listings and career resources. Always verify eligibility, dates and application instructions on the original website.</p>
   <p class="small muted">Desk refreshed: <strong id="careerDeskDate">Today</strong> · Links open the official or source website.</p>
   <div class="dc-desk-grid">
@@ -173,7 +234,7 @@ footer{padding-bottom:28px}
 </section>
 <section class="card" id="jobDiscovery" aria-labelledby="jobDiscoveryTitle">
   <div class="dc-section-kicker">DigiCareer Job Discovery</div>
-  <h2 id="jobDiscoveryTitle">Find jobs without leaving DigiCareer</h2>
+  <h2 id="jobDiscoveryTitle">Latest Job Listings</h2>
   <p class="muted small">Search vacancy summaries inside DigiCareer, filter by opportunity type and location, and save opportunities in this browser. Job details and final applications remain with the original publisher or recruiting authority.</p>
   <div class="jd-toolbar">
     <div class="field wide"><label for="jdQuery">Job title, skill or keyword</label><input id="jdQuery" placeholder="e.g. Accountant, R2R, graduate, SSC CGL"></div>
@@ -190,7 +251,7 @@ footer{padding-bottom:28px}
 </section>
 <section class="card" aria-labelledby="dcRoadmapTitle">
   <div class="dc-section-kicker">What's next</div>
-  <h2 id="dcRoadmapTitle">More Career Tools Coming Soon</h2>
+  <h2 id="dcRoadmapTitle">More Career Services</h2>
   <p class="muted small">We are planning additional tools to support your career preparation.</p>
   <div class="dc-roadmap-grid">
     <article class="dc-roadmap-card"><span class="pill">Planned</span><strong>Resume Review</strong><p>Structured feedback on resume content, clarity and role alignment.</p></article>
