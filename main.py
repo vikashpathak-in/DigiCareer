@@ -87,6 +87,24 @@ class StartBody(BaseModel):
 class AnswerBody(BaseModel):
     answer: str = Field(min_length=1, max_length=6000)
 
+class CareerGuidanceBody(BaseModel):
+    education: str = Field(min_length=2, max_length=80)
+    qualification: str = Field(min_length=2, max_length=140)
+    graduation_year: str = Field(default="", max_length=4)
+    experience: str = Field(min_length=2, max_length=80)
+    interests: str = Field(min_length=5, max_length=1500)
+    skills: str = Field(default="", max_length=1500)
+    country_preference: str = Field(min_length=2, max_length=100)
+    sector_preference: str = Field(min_length=2, max_length=100)
+    work_mode: str = Field(min_length=2, max_length=50)
+    study_commitment: str = Field(min_length=2, max_length=100)
+
+CAREER_GUIDANCE_INSTRUCTIONS = """You are a careful, practical career guidance counsellor. Return ONLY valid JSON with these keys:
+summary (string), profile_note (string), career_paths (array of exactly 3 objects), comparison_note (string), general_next_steps (array of 3-5 strings), caveat (string).
+Each career_paths object must contain:
+title (string), sector (string: Government, Private, Self-employment, or Mixed), entry_level (string), location_fit (string), why_fit (string), eligibility (string), entry_route (string), skills_to_build (array of 2-4 strings), learning_plan (array of 2-4 short actionable strings), watch_out_for (string), next_action (string).
+Use the candidate's actual education, interests, skills, experience, location and study commitment. Recommend three genuinely distinct, realistic pathways, not three versions of the same job. Include government and private routes when the stated preference is open or both. If the candidate is a fresher, explain entry-level routes. If career-changing, identify transferable skills and bridging steps. Do not claim the candidate is eligible for a specific exam, regulated profession, foreign job, visa, or course without exact official criteria; state what must be checked. For international paths, mention work authorisation, language, credential recognition and licensing where relevant. Never invent current vacancies, exact salaries, admission guarantees, visa guarantees, exam dates, or guaranteed outcomes. If salary is discussed, use broad indicative ranges only when defensible and explicitly say it varies by country, employer and experience; it is acceptable to omit salary. Avoid recommending expensive courses as mandatory. Prioritise low-cost learning, recognised qualifications and practical projects. Be balanced, candid about competition and time required, and do not infer protected traits or personality. Keep the response concise and actionable."""
+
 def hash_password(password: str, salt: bytes) -> str:
     return hashlib.pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 310_000).hex()
 
@@ -122,7 +140,7 @@ def extract_output(response) -> str:
         return output.strip()
     raise ValueError("The AI service returned no text.")
 
-def ask_ai(instructions: str, payload: dict) -> dict:
+def ask_ai(instructions: str, payload: dict, max_output_tokens: int = 1400) -> dict:
     ai = require_ai()
     try:
         if AI_PROVIDER != "gemini":
@@ -137,7 +155,7 @@ def ask_ai(instructions: str, payload: dict) -> dict:
                     config=types.GenerateContentConfig(
                         system_instruction=instructions,
                         response_mime_type="application/json",
-                        max_output_tokens=1400,
+                        max_output_tokens=max_output_tokens,
                     ),
                 )
                 break
@@ -349,6 +367,29 @@ def history(user=Depends(current_user)):
 def get_interview(interview_id: str, user=Depends(current_user)):
     row=load_interview(interview_id,user["id"])
     return {"interview":interview_public(row),"report":json.loads(row["report"]) if row["report"] else None}
+
+
+@app.post("/api/career-guidance")
+def career_guidance(body: CareerGuidanceBody, user=Depends(current_user)):
+    if not API_KEY:
+        raise HTTPException(503, "AI is not configured. Set GEMINI_API_KEY in the server environment.")
+    payload = {
+        "education": body.education,
+        "qualification": body.qualification.strip(),
+        "graduation_year": body.graduation_year.strip(),
+        "experience": body.experience,
+        "interests": body.interests.strip(),
+        "skills": body.skills.strip(),
+        "country_preference": body.country_preference,
+        "sector_preference": body.sector_preference,
+        "work_mode": body.work_mode,
+        "study_commitment": body.study_commitment,
+    }
+    result = ask_ai(CAREER_GUIDANCE_INSTRUCTIONS, payload, max_output_tokens=2800)
+    paths = result.get("career_paths")
+    if not isinstance(paths, list) or len(paths) < 3:
+        raise HTTPException(502, "The career assessment was incomplete. Please try again.")
+    return result
 
 # Static assets are served after API routes.
 app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
