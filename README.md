@@ -40,11 +40,15 @@ Google AI Studio API keys are private credentials. Never commit a real key to Gi
 
 ## Included files
 
-- `index.html` — frontend and registration form
+- `index.html` — responsive frontend, account access, interview practice, career desk and welcome popups
 - `main.py` — FastAPI backend and Gemini integration
 - `requirements.txt` — Python dependencies
 - `.env.example` — safe configuration template (no real key)
 - `render.yaml` — Render deployment configuration
+
+## Website experience
+
+The public landing page includes a dated career resource desk linking to official recruitment portals and job-search services. These are source links, not a live vacancy feed; verify every opening and deadline at the original source. Welcome popups are shown once per browser per day, with a Diwali greeting configured for 8 November 2026.
 
 ## Persistence and production readiness
 
