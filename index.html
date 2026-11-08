@@ -31,6 +31,17 @@
 .cn-results{margin-top:18px}.cn-path{border:1px solid var(--line);border-radius:14px;padding:17px;margin:12px 0;background:#fff}.cn-path h3{margin:0 0 5px}.cn-meta{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}.cn-tag{background:#eef4ff;color:#214a83;border-radius:999px;padding:4px 9px;font-size:.78rem;font-weight:750}.cn-path ul{margin:7px 0 0;padding-left:20px}.cn-path li{margin:4px 0}.cn-note{background:#fff8e8;border:1px solid #f3dfb2;border-radius:10px;padding:12px;color:#70521b;font-size:.88rem}
 @media(max-width:640px){.cn-path{padding:14px}}
 
+/* DigiCareer in-site job discovery */
+.jd-toolbar{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:10px;margin:16px 0}
+.jd-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.jd-tabs button.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.jd-job{border:1px solid var(--line);border-radius:13px;padding:15px;margin:10px 0;background:#fff}
+.jd-job h3{margin:0 0 5px;font-size:1.02rem}
+.jd-meta{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+.jd-job-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.jd-job a{color:var(--blue2);font-weight:700}
+.jd-empty{padding:20px;border:1px dashed #bdcad9;border-radius:12px;color:var(--muted);text-align:center}
+@media(max-width:700px){.jd-toolbar{grid-template-columns:1fr 1fr}.jd-toolbar .wide{grid-column:1/-1}}
 </style>
 <link rel="canonical" href="https://digicareer.onrender.com/">
 <meta name="robots" content="index,follow,max-image-preview:large">
@@ -91,6 +102,23 @@
     <a class="dc-desk-link" href="https://www.naukri.com/" target="_blank" rel="noopener noreferrer"><strong>Naukri Jobs</strong><span>Search private-sector roles and openings</span></a>
     <a class="dc-desk-link" href="https://www.linkedin.com/jobs/" target="_blank" rel="noopener noreferrer"><strong>LinkedIn Jobs</strong><span>Explore jobs and employer opportunities</span></a>
   </div>
+</section>
+<section class="card" id="jobDiscovery" aria-labelledby="jobDiscoveryTitle">
+  <div class="dc-section-kicker">DigiCareer Job Discovery</div>
+  <h2 id="jobDiscoveryTitle">Find jobs without leaving DigiCareer</h2>
+  <p class="muted small">Search vacancy summaries inside DigiCareer, filter by opportunity type and location, and save opportunities in this browser. Job details and final applications remain with the original publisher or recruiting authority.</p>
+  <div class="jd-toolbar">
+    <div class="field wide"><label for="jdQuery">Job title, skill or keyword</label><input id="jdQuery" placeholder="e.g. Accountant, R2R, graduate, SSC CGL"></div>
+    <div class="field"><label for="jdCategory">Opportunity type</label><select id="jdCategory"><option value="all">All opportunities</option><option value="private">Private jobs</option><option value="government">Government jobs</option><option value="results">Results / admit cards</option></select></div>
+    <div class="field"><label for="jdLocation">Location</label><input id="jdLocation" placeholder="Bengaluru, India"></div>
+    <div class="field"><label for="jdSort">Show</label><select id="jdSort"><option value="recent">Latest first</option><option value="saved">Saved bookmarks</option></select></div>
+  </div>
+  <div class="actions"><button class="btn primary" id="jdSearch" type="button">Search opportunities</button><button class="btn" id="jdUseProfile" type="button">Use my career interests</button><button class="btn" id="jdBookmarkPage" type="button">Bookmark DigiCareer</button></div>
+  <div class="jd-tabs"><button class="btn active" id="jdAllTab" type="button">All results</button><button class="btn" id="jdSavedTab" type="button">Saved jobs</button></div>
+  <p id="jdStatus" class="small muted" role="status">Search the latest available vacancy feed. Verify every government notice on the official portal.</p>
+  <div id="jdResults" aria-live="polite"><div class="jd-empty">Enter a role or keyword and select Search opportunities.</div></div>
+  <div class="cn-note small">Source transparency: vacancy summaries may come from third-party alert publishers, not the government itself. DigiCareer does not copy full articles or accept applications. Verify qualification, age, fee, dates and application links against the original official notification. Naukri does not provide a public job-listing API; its live listings are not represented as integrated here. Use the prepared Naukri search shortcut if needed.</div>
+  <div class="actions"><a class="btn" id="jdNaukriSearch" href="https://www.naukri.com/" target="_blank" rel="noopener noreferrer">Open matching Naukri search</a><a class="btn" href="https://ssc.gov.in/" target="_blank" rel="noopener noreferrer">Official SSC notices</a><a class="btn" href="https://upsc.gov.in/" target="_blank" rel="noopener noreferrer">Official UPSC notices</a><a class="btn" href="https://www.ibps.in/" target="_blank" rel="noopener noreferrer">Official IBPS notices</a></div>
 </section>
 <section class="card" aria-labelledby="dcRoadmapTitle">
   <div class="dc-section-kicker">What's next</div>
@@ -276,4 +304,63 @@ $("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;stat
 })();
 </script>
 
+<script id="digicareer-job-discovery">
+(() => {
+  "use strict";
+  const $=id=>document.getElementById(id), savedKey="digicareer_saved_jobs_v1";
+  let jobs=[],showSaved=false;
+  const readSaved=()=>{try{return JSON.parse(localStorage.getItem(savedKey)||"[]")}catch(_){return []}};
+  const writeSaved=x=>localStorage.setItem(savedKey,JSON.stringify(x));
+  const clean=s=>String(s||"").replace(/\s+/g," ").trim();
+  function render(){
+    const root=$("jdResults");root.replaceChildren();
+    const saved=readSaved();
+    let list=showSaved?jobs.filter(j=>saved.includes(j.id)):jobs.slice();
+    if($("jdSort").value==="saved")list=list.filter(j=>saved.includes(j.id));
+    if(!list.length){const empty=document.createElement("div");empty.className="jd-empty";empty.textContent=showSaved||$("jdSort").value==="saved"?"No saved opportunities yet. Search and use Save job to bookmark an opportunity in this browser.":"No matching results. Try a broader keyword or another category.";root.append(empty);return;}
+    list.forEach(j=>{
+      const card=document.createElement("article");card.className="jd-job";
+      const title=document.createElement("h3");title.textContent=j.title;card.append(title);
+      const meta=document.createElement("div");meta.className="jd-meta";
+      [j.category_label,j.publisher,j.published].filter(Boolean).forEach(v=>{const tag=document.createElement("span");tag.className="cn-tag";tag.textContent=v;meta.append(tag)});
+      card.append(meta);
+      if(j.summary){const p=document.createElement("p");p.textContent=j.summary;card.append(p);}
+      const actions=document.createElement("div");actions.className="jd-job-actions";
+      const source=document.createElement("a");source.href=j.url;source.target="_blank";source.rel="noopener noreferrer";source.textContent="View original notice";actions.append(source);
+      const save=document.createElement("button");save.type="button";save.className="btn";save.textContent=saved.includes(j.id)?"Remove bookmark":"Save job";
+      save.addEventListener("click",()=>{const now=readSaved();writeSaved(now.includes(j.id)?now.filter(x=>x!==j.id):now.concat(j.id));render()});actions.append(save);
+      card.append(actions);root.append(card);
+    });
+  }
+  async function search(){
+    const q=clean($("jdQuery").value),category=$("jdCategory").value,location=clean($("jdLocation").value);
+    $("jdStatus").textContent="Searching available vacancy feeds…";$("jdSearch").disabled=true;
+    try{
+      const params=new URLSearchParams({q:q,category:category,location:location});
+      const res=await fetch("/api/jobs?"+params.toString());
+      const data=await res.json().catch(()=>({detail:"Unexpected server response"}));
+      if(!res.ok)throw new Error(data.detail||"Could not load opportunities.");
+      jobs=data.jobs||[];
+      $("jdStatus").textContent=jobs.length+" opportunity summaries found · Feed updated "+(data.updated_at||"recently")+".";
+      const nq=new URL("https://www.naukri.com/");
+      if(q)nq.pathname="/"+q.toLowerCase().replace(/[^a-z0-9]+/g,"-")+"-jobs";
+      if(location){nq.searchParams.set("k",q||"jobs");nq.searchParams.set("l",location);}
+      $("jdNaukriSearch").href=nq.toString();
+      showSaved=false;$("jdAllTab").classList.add("active");$("jdSavedTab").classList.remove("active");render();
+    }catch(e){$("jdStatus").textContent=e.message;const root=$("jdResults");root.replaceChildren();const p=document.createElement("div");p.className="jd-empty";p.textContent="The vacancy feed is temporarily unavailable. Use the official recruitment links below.";root.append(p);}
+    finally{$("jdSearch").disabled=false;}
+  }
+  $("jdSearch").addEventListener("click",search);
+  $("jdQuery").addEventListener("keydown",e=>{if(e.key==="Enter")search()});
+  $("jdAllTab").addEventListener("click",()=>{showSaved=false;$("jdAllTab").classList.add("active");$("jdSavedTab").classList.remove("active");render()});
+  $("jdSavedTab").addEventListener("click",()=>{showSaved=true;$("jdSavedTab").classList.add("active");$("jdAllTab").classList.remove("active");render()});
+  $("jdSort").addEventListener("change",render);
+  $("jdUseProfile").addEventListener("click",()=>{
+    const terms=[clean($("cnSubject")?.value),clean($("cnInterests")?.value),clean($("cnSkills")?.value)].filter(Boolean).join(" ");
+    if(!terms){$("jdStatus").textContent="Complete your Career Navigator profile first, then use this button.";return;}
+    $("jdQuery").value=terms.slice(0,180);search();
+  });
+  $("jdBookmarkPage").addEventListener("click",()=>alert("To bookmark DigiCareer in your browser, press Ctrl + D (Windows) or Cmd + D (Mac), then save it to your Bookmarks bar."));
+})();
+</script>
 </body></html>
