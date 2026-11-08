@@ -24,6 +24,18 @@
 .dc-roadmap-card{background:#fff}
 .dc-roadmap-card .pill{display:inline-block;margin-bottom:8px}
 @media(max-width:640px){.dc-welcome-card{padding:24px 18px}.dc-desk-grid,.dc-roadmap-grid{grid-template-columns:1fr}}
+.dc-daily-card{width:min(100%,650px);max-height:90vh;overflow:auto;text-align:left}
+.dc-daily-card>.dc-greeting-icon{text-align:center;font-size:2.4rem;margin-bottom:5px}
+.dc-daily-card>h2,.dc-daily-card>.pill{text-align:center;display:block}
+.dc-daily-card>p{text-align:center}
+.dc-popup-updates{margin:16px 0;padding:15px;background:#f6f8fc;border:1px solid #dce4f1;border-radius:12px;font-size:.9rem}
+.dc-popup-updates ul{padding-left:20px;margin:8px 0 14px}
+.dc-popup-updates li{margin:5px 0}
+.dc-popup-live-title{font-weight:800;color:#18385f;border-top:1px solid #dce4f1;padding-top:11px;margin-top:8px}
+.dc-popup-live-jobs{margin:8px 0}
+.dc-popup-live-jobs a{display:block;color:#174c88;font-weight:700;text-decoration:underline;padding:6px 0;border-bottom:1px solid #e3e8f0}
+.dc-popup-live-jobs .dc-popup-job-note{color:#64748b;font-size:.82rem}
+@media(max-width:640px){.dc-daily-card{padding:22px 16px}.dc-daily-card .actions .btn{width:100%}}
 
 
 /* Career Navigator */
@@ -189,12 +201,28 @@ footer{background:#e6ebf2;padding:14px;margin-bottom:20px;text-align:center;colo
   </div>
 </div>
 <div id="dc-morning-popup" class="dc-welcome-overlay" role="dialog" aria-modal="true" aria-labelledby="dc-morning-title">
-  <div class="dc-welcome-card">
+  <div class="dc-welcome-card dc-daily-card">
     <button class="dc-welcome-close" type="button" aria-label="Close" onclick="closeDigiCareerWelcome('morning')">&times;</button>
-    <div style="font-size:2.5rem">☀️</div><span class="pill">A fresh start</span>
+    <div id="dc-greeting-icon" class="dc-greeting-icon" aria-hidden="true">☀️</div>
+    <span class="pill">DigiCareer Daily Update</span>
     <h2 id="dc-morning-title">Good Morning!</h2>
-    <p>Take one step towards your next opportunity. Explore career updates, practise an interview question and keep improving your skills.</p>
-    <button class="btn primary" type="button" onclick="closeDigiCareerWelcome('morning');document.getElementById('dcExplorePractice')?.click()">Start Practising</button>
+    <p id="dc-greeting-message">Your daily career update is ready. Check new opportunities and keep moving towards your next role.</p>
+    <div class="dc-popup-updates">
+      <strong>What's available today</strong>
+      <ul>
+        <li>Find Jobs: search current vacancy summaries and filter by role, sector or location.</li>
+        <li>Career Navigator: get career-path suggestions based on your education and skills.</li>
+        <li>AI Interview: practise role-based questions and review your feedback.</li>
+        <li>Important links: visit NCS, SSC, UPSC, IBPS, Naukri and LinkedIn Jobs.</li>
+      </ul>
+      <div class="dc-popup-live-title">Latest vacancy feed</div>
+      <div id="dc-popup-live-jobs" class="dc-popup-live-jobs" aria-live="polite">Checking the latest available vacancy summaries…</div>
+      <small id="dc-popup-updated" class="muted">Always verify dates and eligibility on the original recruitment website.</small>
+    </div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn primary" type="button" onclick="closeDigiCareerWelcome('morning');document.querySelector('[data-tab=jobs]')?.click()">Explore Job Updates</button>
+      <button class="btn" type="button" onclick="closeDigiCareerWelcome('morning');document.getElementById('dcExplorePractice')?.click()">Practise Interview</button>
+    </div>
   </div>
 </div>
 
@@ -351,28 +379,63 @@ $("logoutBtn").classList.add("hidden");
   const now = new Date();
   const dayKey = [now.getFullYear(),String(now.getMonth()+1).padStart(2,"0"),String(now.getDate()).padStart(2,"0")].join("-");
   const diwaliKey = "digicareer_diwali_2026_seen";
-  const morningKey = "digicareer_morning_seen_"+dayKey;
+  const dailyKey = "digicareer_daily_greeting_seen_"+dayKey;
   const open = id => document.getElementById(id)?.classList.add("open");
+  function greetingForHour(hour){
+    if(hour>=5 && hour<12)return {title:"Good Morning!",icon:"☀️",message:"Start your day with fresh career opportunities. Take one practical step towards your next role."};
+    if(hour>=12 && hour<17)return {title:"Good Afternoon!",icon:"🌤️",message:"Keep your career momentum going. Check the latest opportunities and make progress on your next application."};
+    return {title:"Good Evening!",icon:"🌙",message:"Use a little time this evening to review opportunities, sharpen your skills and prepare for your next interview."};
+  }
   window.closeDigiCareerWelcome = kind => {
     const id = kind==="diwali" ? "dc-diwali-popup" : "dc-morning-popup";
     document.getElementById(id)?.classList.remove("open");
-    try { localStorage.setItem(kind==="diwali" ? diwaliKey : morningKey,"1"); } catch(e) {}
-    if(kind==="diwali") setTimeout(showMorning,300);
+    try { localStorage.setItem(kind==="diwali" ? diwaliKey : dailyKey,"1"); } catch(e) {}
+    if(kind==="diwali") setTimeout(showDaily,300);
   };
-  function showMorning(){
-    try { if(localStorage.getItem(morningKey)==="1") return; } catch(e) {}
+  function loadLatestJobs(){
+    const root=document.getElementById("dc-popup-live-jobs");
+    const updated=document.getElementById("dc-popup-updated");
+    if(!root)return;
+    fetch("/api/jobs?q=&category=all&location=")
+      .then(r=>{if(!r.ok)throw new Error("Vacancy feed unavailable");return r.json();})
+      .then(data=>{
+        const jobs=Array.isArray(data.jobs)?data.jobs.slice(0,3):[];
+        root.replaceChildren();
+        if(!jobs.length){root.textContent="No new vacancy summaries are available in the feed right now. Use Find Jobs or the official recruitment links above.";}
+        else jobs.forEach(job=>{
+          const a=document.createElement("a");
+          a.href=job.url||"#";a.target="_blank";a.rel="noopener noreferrer";
+          a.textContent=job.title||"View vacancy notice";
+          root.append(a);
+        });
+        if(data.updated_at)updated.textContent="Feed checked: "+data.updated_at+". Verify every detail on the original notice.";
+      })
+      .catch(()=>{
+        root.textContent="Live vacancy feed could not be reached right now. The Find Jobs section and official recruitment links are still available.";
+      });
+  }
+  function showDaily(){
+    try { if(localStorage.getItem(dailyKey)==="1") return; } catch(e) {}
+    const greeting=greetingForHour(now.getHours());
+    const title=document.getElementById("dc-morning-title");
+    const icon=document.getElementById("dc-greeting-icon");
+    const message=document.getElementById("dc-greeting-message");
+    if(title)title.textContent=greeting.title;
+    if(icon)icon.textContent=greeting.icon;
+    if(message)message.textContent=greeting.message;
     open("dc-morning-popup");
+    loadLatestJobs();
   }
   document.addEventListener("DOMContentLoaded",()=>{
     const dateNode=document.getElementById("careerDeskDate");
-    if(dateNode) dateNode.textContent=now.toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
+    if(dateNode)dateNode.textContent=now.toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"});
     const isDiwali=dayKey==="2026-11-08";
-    let seen=false; try { seen=localStorage.getItem(diwaliKey)==="1"; } catch(e) {}
-    if(isDiwali && !seen) setTimeout(()=>open("dc-diwali-popup"),900);
-    else setTimeout(showMorning,1300);
+    let diwaliSeen=false;try{diwaliSeen=localStorage.getItem(diwaliKey)==="1"}catch(e){}
+    if(isDiwali&&!diwaliSeen)setTimeout(()=>open("dc-diwali-popup"),900);
+    else setTimeout(showDaily,1300);
     ["dc-diwali-popup","dc-morning-popup"].forEach(id=>{
       document.getElementById(id)?.addEventListener("click",e=>{
-        if(e.target.id===id) window.closeDigiCareerWelcome(id==="dc-diwali-popup"?"diwali":"morning");
+        if(e.target.id===id)window.closeDigiCareerWelcome(id==="dc-diwali-popup"?"diwali":"morning");
       });
     });
   });
