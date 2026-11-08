@@ -13,7 +13,7 @@ GitHub Pages only hosts static files and cannot run the Python API. The registra
 3. In Render → DigiCareer → Environment, add:
    - `AI_PROVIDER` = `gemini`
    - `GEMINI_API_KEY` = your secret key from Google AI Studio
-   - `GEMINI_MODEL` = `gemini-2.5-flash`
+   - `GEMINI_MODEL` = `gemini-3.8-flash`
 4. Remove or ignore the old `OPENAI_API_KEY` variable; the Gemini integration does not use it.
 5. Save changes and wait for the deployment to finish.
 6. Open the Render service URL and visit `/api/health`. It should return JSON with `ok: true`. Confirm `ai_configured` is true.
