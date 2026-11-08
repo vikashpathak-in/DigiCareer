@@ -8,6 +8,9 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+import urllib.request
+import xml.etree.ElementTree as ET
+from email.utils import parsedate_to_datetime
 
 from fastapi import FastAPI, Header, HTTPException, Depends
 from fastapi.responses import FileResponse, Response
@@ -390,6 +393,75 @@ def career_guidance(body: CareerGuidanceBody, user=Depends(current_user)):
     if not isinstance(paths, list) or len(paths) < 3:
         raise HTTPException(502, "The career assessment was incomplete. Please try again.")
     return result
+
+
+# RSS-backed vacancy summaries. This is a third-party alert publisher, not an official source.
+_JOB_FEED_URL = "https://www.freejobalert.com/feed/"
+_job_feed_cache = {"at": 0.0, "items": []}
+
+def _load_job_feed():
+    now = time.time()
+    if _job_feed_cache["items"] and now - _job_feed_cache["at"] < 900:
+        return _job_feed_cache["items"]
+    request = urllib.request.Request(_JOB_FEED_URL, headers={"User-Agent": "DigiCareer/1.0 (+https://digicareer.onrender.com)"})
+    try:
+        with urllib.request.urlopen(request, timeout=12) as response:
+            raw = response.read(2_000_000)
+        root = ET.fromstring(raw)
+        parsed = []
+        for item in root.findall(".//item"):
+            title = (item.findtext("title") or "").strip()
+            link = (item.findtext("link") or "").strip()
+            pub = (item.findtext("pubDate") or "").strip()
+            if not title or not link or not link.startswith("https://"):
+                continue
+            lower = title.lower()
+            if any(x in lower for x in ("result", "admit card", "answer key", "exam city")):
+                category, label = "results", "Result / exam update"
+            elif any(x in lower for x in ("recruitment", "vacancy", "apply online", "government", "ssc", "upsc", "railway", "bank", "police", "psc", "nhm")):
+                category, label = "government", "Government / recruitment alert"
+            else:
+                category, label = "private", "Job alert"
+            try:
+                published = parsedate_to_datetime(pub).strftime("%d %b %Y") if pub else ""
+            except Exception:
+                published = pub[:40]
+            parsed.append({
+                "id": hashlib.sha256(link.encode()).hexdigest()[:20],
+                "title": title[:300],
+                "summary": "Summary from FreeJobAlert. Open the original notice and verify all details before applying.",
+                "url": link,
+                "publisher": "FreeJobAlert feed",
+                "published": published,
+                "category": category,
+                "category_label": label,
+            })
+        _job_feed_cache.update({"at": now, "items": parsed})
+        return parsed
+    except Exception as exc:
+        print("Job feed fetch failed:", type(exc).__name__)
+        if _job_feed_cache["items"]:
+            return _job_feed_cache["items"]
+        raise HTTPException(503, "The job feed is temporarily unavailable. Please try again later.")
+
+@app.get("/api/jobs")
+def discover_jobs(q: str = "", category: str = "all", location: str = ""):
+    if category not in {"all", "private", "government", "results"}:
+        raise HTTPException(400, "Invalid opportunity category.")
+    items = _load_job_feed()
+    terms = [x.lower() for x in q.split() if len(x) > 1]
+    filtered = []
+    for item in items:
+        if category != "all" and item["category"] != category:
+            continue
+        haystack = (item["title"] + " " + item["summary"] + " " + item["publisher"]).lower()
+        if terms and not all(term in haystack for term in terms):
+            continue
+        filtered.append(item)
+    return {"jobs": filtered[:80], "count": len(filtered),
+            "updated_at": datetime.now().astimezone().strftime("%d %b %Y, %I:%M %p %Z"),
+            "source_note": "Third-party alert feed; verify government details against the official recruiting authority."}
+
 
 # Static assets are served after API routes.
 app.mount("/static", StaticFiles(directory=BASE_DIR), name="static")
