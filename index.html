@@ -78,16 +78,7 @@
 
 <main>
 <div id="globalMessage" class="alert hidden" role="status"></div>
-<section id="authView" class="card">
-  <div class="tabs"><button id="loginTab" class="btn primary" type="button">Sign in</button><button id="registerTab" class="btn" type="button">Create account</button></div>
-  <div style="margin-top:18px"><h2 id="authTitle">Welcome back</h2><p class="muted small">Create an account to save your interview practice history on this server.</p></div>
-  <form id="authForm"><div class="grid">
-    <div id="nameWrap" class="field full hidden"><label for="name">Full name</label><input id="name" maxlength="100" autocomplete="name" placeholder="Your name"></div>
-    <div class="field full"><label for="authEmail">Email address</label><input id="authEmail" type="email" required maxlength="254" autocomplete="email" placeholder="you@example.com"></div>
-    <div class="field full"><label for="authPassword">Password</label><input id="authPassword" type="password" required minlength="10" maxlength="128" autocomplete="current-password" placeholder="At least 10 characters"></div>
-  </div><div class="actions"><button id="authSubmit" class="btn primary" type="submit">Sign in</button></div></form>
-  <p class="small muted">Use a unique password. Do not use a password you use for banking or other important accounts.</p>
-</section>
+<!-- Public DigiCareer: sign-in is not required for career search. -->
 
 <section class="card" aria-labelledby="careerDeskTitle">
   <div class="dc-section-kicker">DigiCareer Daily Desk</div>
@@ -132,7 +123,7 @@
   <div class="actions"><button class="btn primary" type="button" id="dcExplorePractice">Explore AI Interview Practice</button></div>
 </section>
 
-<section id="dashboardView" class="hidden">
+<section id="dashboardView">
 
   <section class="card" id="careerNavigator" aria-labelledby="careerNavigatorTitle">
     <div class="cn-intro"><div class="cn-mark" aria-hidden="true">CN</div><div><div class="dc-section-kicker">Career guidance · India &amp; global</div><h2 id="careerNavigatorTitle">Career Navigator</h2><p class="muted small">Not sure what to do after graduation or postgraduation? Build a practical shortlist of career paths based on your education, interests, skills and goals.</p></div></div>
@@ -184,7 +175,7 @@
 "use strict";
 const $ = id => document.getElementById(id);
 const state = {token:localStorage.getItem("digicareer_token")||"", user:null, authMode:"login", interview:null, busy:false};
-const views = ["authView","dashboardView","interviewView","resultView"];
+const views = ["dashboardView","interviewView","resultView"];
 $("year").textContent = new Date().getFullYear();
 function message(text, kind="") { const el=$("globalMessage"); el.textContent=text; el.className="alert"+(kind?" "+kind:""); el.classList.toggle("hidden",!text); }
 function showView(id) { views.forEach(v=>$(v).classList.toggle("hidden",v!==id)); message(""); window.scrollTo({top:0,behavior:"smooth"}); }
@@ -200,7 +191,7 @@ async function api(path, options={}) {
 function authMode(mode){state.authMode=mode;const reg=mode==="register";$("nameWrap").classList.toggle("hidden",!reg);$("name").required=reg;$("authTitle").textContent=reg?"Create your DigiCareer account":"Welcome back";$("authSubmit").textContent=reg?"Create account":"Sign in";$("loginTab").classList.toggle("primary",!reg);$("registerTab").classList.toggle("primary",reg);$("authPassword").autocomplete=reg?"new-password":"current-password";}
 $("loginTab").addEventListener("click",()=>authMode("login"));$("registerTab").addEventListener("click",()=>authMode("register"));
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();const btn=$("authSubmit");setBusy(btn,true,state.authMode==="register"?"Creating account…":"Signing in…");try{const data=await api(state.authMode==="register"?"/api/register":"/api/login",{method:"POST",body:JSON.stringify({name:$("name").value.trim(),email:$("authEmail").value.trim(),password:$("authPassword").value})});state.token=data.token;state.user=data.user;localStorage.setItem("digicareer_token",state.token);$("authPassword").value="";await enterDashboard();}catch(err){message(err.message,"error");}finally{setBusy(btn,false,"Sign in");btn.textContent=state.authMode==="register"?"Create account":"Sign in";}});
-async function enterDashboard(){ $("userLabel").textContent=state.user?.name||state.user?.email||"";$("logoutBtn").classList.remove("hidden");showView("dashboardView");await loadHistory();}
+async function enterDashboard(){ $("userLabel").textContent=state.user?.name||"Guest";$("logoutBtn").classList.add("hidden");showView("dashboardView");if(state.token)await loadHistory();else $("historyList").textContent="Interview history is account-based; browse and career assessment work without signing in."; }
 async function loadHistory(){const el=$("historyList");el.textContent="Loading history…";try{const data=await api("/api/history");el.replaceChildren();if(!data.interviews.length){const p=document.createElement("p");p.className="muted";p.textContent="No interviews yet. Start your first practice session above.";el.append(p);return;}data.interviews.forEach(item=>{const row=document.createElement("div");row.className="history-item";const info=document.createElement("div");const title=document.createElement("strong");title.textContent=item.role;const meta=document.createElement("div");meta.className="small muted";meta.textContent=`${item.interview_type} · ${item.question_count} questions · ${new Date(item.created_at+"Z").toLocaleString()}`;info.append(title,meta);const score=document.createElement("span");score.className="pill";score.textContent=item.score==null?"In progress":`${item.score}/100`;row.append(info,score);el.append(row);});}catch(err){el.textContent=err.message;}}
 $("role").addEventListener("change",()=> $("customRoleWrap").classList.toggle("hidden",$("role").value!=="Custom role"));
 $("startForm").addEventListener("submit",async e=>{e.preventDefault();const btn=$("startBtn");const role=$("role").value==="Custom role"?$("customRole").value.trim():$("role").value;if(!role){message("Enter a custom job title.","error");return;}setBusy(btn,true,"Preparing interview…");try{state.interview=await api("/api/interviews",{method:"POST",body:JSON.stringify({role,interview_type:$("interviewType").value,level:$("level").value,question_count:Number($("count").value),language:$("language").value,job_description:$("jobDescription").value.trim()})});renderInterview();showView("interviewView");}catch(err){message(err.message,"error");}finally{setBusy(btn,false,"Start AI interview");}});
@@ -211,8 +202,8 @@ $("endEarlyBtn").addEventListener("click",async()=>{if(!confirm("Finish this int
 function renderResult(report){const body=$("resultBody");body.replaceChildren();$("resultSubtitle").textContent=`${report.role} · ${report.answers_reviewed} answer(s) reviewed`;const score=document.createElement("div");score.className="score";score.textContent=report.overall_score+"/100";body.append(score);const desc=document.createElement("p");desc.className="muted";desc.textContent="Practice feedback only—not a hiring decision or guarantee of employment.";body.append(desc);const grid=document.createElement("div");grid.className="feedback-grid";for(const [label,val] of [["Technical knowledge",report.technical_knowledge],["Answer clarity",report.answer_clarity],["Structure",report.structure],["Role relevance",report.role_relevance]]){const c=document.createElement("div");c.className="feedback-card";const b=document.createElement("b");b.textContent=label;const p=document.createElement("div");p.textContent=val??"Not enough evidence";c.append(b,p);grid.append(c);}body.append(grid);for(const [title,items] of [["Strengths",report.strengths],["Areas to improve",report.improvements],["Recommended practice",report.next_steps]]){const h=document.createElement("h3");h.style.marginTop="20px";h.textContent=title;body.append(h);const ul=document.createElement("ul");(items||[]).forEach(t=>{const li=document.createElement("li");li.textContent=t;ul.append(li);});if(!ul.children.length){const li=document.createElement("li");li.textContent="Keep practising and review the feedback above.";ul.append(li);}body.append(ul);}const transcript=document.createElement("details");transcript.style.marginTop="20px";const sum=document.createElement("summary");sum.textContent="View question-by-question feedback";transcript.append(sum);(report.answer_feedback||[]).forEach((a,n)=>transcript.append(safeBubble("Question "+(n+1),a.question,"ai"),safeBubble("Feedback",a.feedback,"user")));body.append(transcript);const dl=document.createElement("button");dl.className="btn";dl.textContent="Download feedback (.txt)";dl.type="button";dl.addEventListener("click",()=>{const text=`DigiCareer AI Interview Feedback\nRole: ${report.role}\nOverall practice score: ${report.overall_score}/100\n\nStrengths:\n${(report.strengths||[]).map(x=>"- "+x).join("\n")}\n\nAreas to improve:\n${(report.improvements||[]).map(x=>"- "+x).join("\n")}\n\nNext steps:\n${(report.next_steps||[]).map(x=>"- "+x).join("\n")}\n\nQuestion feedback:\n${(report.answer_feedback||[]).map((a,i)=>`${i+1}. ${a.question}\n${a.feedback}`).join("\n\n")}\n\nAI practice feedback only; not a hiring decision.`;const url=URL.createObjectURL(new Blob([text],{type:"text/plain;charset=utf-8"}));const a=document.createElement("a");a.href=url;a.download="DigiCareer-Interview-Feedback.txt";a.click();URL.revokeObjectURL(url);});body.append(dl);}
 $("newInterviewBtn").addEventListener("click",async()=>{showView("dashboardView");await loadHistory();});$("dashboardBtn").addEventListener("click",async()=>{showView("dashboardView");await loadHistory();});
 $("dcExplorePractice").addEventListener("click",()=>{if(state.user) showView("dashboardView");else showView("authView");document.getElementById("authView").scrollIntoView({behavior:"smooth"});});
-$("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;state.interview=null;localStorage.removeItem("digicareer_token");$("userLabel").textContent="";$("logoutBtn").classList.add("hidden");showView("authView");});
-(async()=>{if(!state.token){showView("authView");return;}try{const data=await api("/api/me");state.user=data.user;await enterDashboard();}catch(_){state.token="";localStorage.removeItem("digicareer_token");showView("authView");}})();
+$("logoutBtn").classList.add("hidden");
+(async()=>{if(state.token){try{const data=await api("/api/me");state.user=data.user;}catch(_){state.token="";localStorage.removeItem("digicareer_token");}}await enterDashboard();})();
 })();
 </script>
 
@@ -294,7 +285,7 @@ $("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;stat
       work_mode:$("cnMode").value,study_commitment:$("cnStudy").value
     };
     try{
-      const response=await fetch("/api/career-guidance",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+(localStorage.getItem("digicareer_token")||"")},body:JSON.stringify(payload)});
+      const response=await fetch("/api/career-guidance",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
       const data=await response.json().catch(()=>({detail:"Unexpected server response"}));
       if(!response.ok)throw new Error(data.detail||"Could not create the assessment. Please try again.");
       render(data);msg("Your career assessment is ready.","ok");
