@@ -373,7 +373,7 @@ def get_interview(interview_id: str, user=Depends(current_user)):
 
 
 @app.post("/api/career-guidance")
-def career_guidance(body: CareerGuidanceBody, user=Depends(current_user)):
+def career_guidance(body: CareerGuidanceBody):
     if not API_KEY:
         raise HTTPException(503, "AI is not configured. Set GEMINI_API_KEY in the server environment.")
     payload = {
