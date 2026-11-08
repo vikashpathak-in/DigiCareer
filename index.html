@@ -110,7 +110,7 @@
   <div class="jd-toolbar">
     <div class="field wide"><label for="jdQuery">Job title, skill or keyword</label><input id="jdQuery" placeholder="e.g. Accountant, R2R, graduate, SSC CGL"></div>
     <div class="field"><label for="jdCategory">Opportunity type</label><select id="jdCategory"><option value="all">All opportunities</option><option value="private">Private jobs</option><option value="government">Government jobs</option><option value="results">Results / admit cards</option></select></div>
-    <div class="field"><label for="jdLocation">Location</label><input id="jdLocation" placeholder="Bengaluru, India"></div>
+    <div class="field"><label for="jdLocation">Location (also used for Naukri shortcut)</label><input id="jdLocation" placeholder="Bengaluru, India"></div>
     <div class="field"><label for="jdSort">Show</label><select id="jdSort"><option value="recent">Latest first</option><option value="saved">Saved bookmarks</option></select></div>
   </div>
   <div class="actions"><button class="btn primary" id="jdSearch" type="button">Search opportunities</button><button class="btn" id="jdUseProfile" type="button">Use my career interests</button><button class="btn" id="jdBookmarkPage" type="button">Bookmark DigiCareer</button></div>
@@ -315,7 +315,7 @@ $("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;stat
   function render(){
     const root=$("jdResults");root.replaceChildren();
     const saved=readSaved();
-    let list=showSaved?jobs.filter(j=>saved.includes(j.id)):jobs.slice();
+    let list=showSaved?saved.slice():jobs.slice();
     if($("jdSort").value==="saved")list=list.filter(j=>saved.includes(j.id));
     if(!list.length){const empty=document.createElement("div");empty.className="jd-empty";empty.textContent=showSaved||$("jdSort").value==="saved"?"No saved opportunities yet. Search and use Save job to bookmark an opportunity in this browser.":"No matching results. Try a broader keyword or another category.";root.append(empty);return;}
     list.forEach(j=>{
@@ -327,8 +327,8 @@ $("logoutBtn").addEventListener("click",()=>{state.token="";state.user=null;stat
       if(j.summary){const p=document.createElement("p");p.textContent=j.summary;card.append(p);}
       const actions=document.createElement("div");actions.className="jd-job-actions";
       const source=document.createElement("a");source.href=j.url;source.target="_blank";source.rel="noopener noreferrer";source.textContent="View original notice";actions.append(source);
-      const save=document.createElement("button");save.type="button";save.className="btn";save.textContent=saved.includes(j.id)?"Remove bookmark":"Save job";
-      save.addEventListener("click",()=>{const now=readSaved();writeSaved(now.includes(j.id)?now.filter(x=>x!==j.id):now.concat(j.id));render()});actions.append(save);
+      const save=document.createElement("button");save.type="button";save.className="btn";save.textContent=saved.some(x=>x.id===j.id)?"Remove bookmark":"Save job";
+      save.addEventListener("click",()=>{const now=readSaved();writeSaved(now.some(x=>x.id===j.id)?now.filter(x=>x.id!==j.id):now.concat(j));render()});actions.append(save);
       card.append(actions);root.append(card);
     });
   }
