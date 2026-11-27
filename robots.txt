@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vikashpathak-in.github.io/DigiCareer/sitemap.xml
